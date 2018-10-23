@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"myproject/models"
-	"myproject/db"
+	"JP-go-server/models"
+	"JP-go-server/db"
 	"encoding/json"
 	"io/ioutil"
 	)
