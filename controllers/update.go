@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"myproject/models"
+	"JP-go-server/models"
 	"io/ioutil"
 	"encoding/json"
-	"myproject/db"
+	"JP-go-server/db"
 )
 
 //用户数据更新
@@ -16,7 +16,7 @@ type UpdateController struct {
 func (this *UpdateController) Post() {
 	this.TplName ="test.tpl"
 
-	var jsReq models.JsonRequest
+	var jsReq 	models.JsonRequest
 	var msg 	models.Message
 
 	requestBody := this.Ctx.Request.Body
