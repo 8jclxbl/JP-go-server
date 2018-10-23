@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"myproject/models"
+	"JP-go-server/models"
 	"encoding/json"
 	"myproject/db"
 	"io/ioutil"

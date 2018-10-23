@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"myproject/controllers"
+	"JP-go-server/controllers"
 	"github.com/astaxie/beego"
 )
 

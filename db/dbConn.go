@@ -24,7 +24,7 @@ func init() {
 	}
 	dsn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + dbname + "?charset=utf8"
 	dbConn, err = sql.Open("mysql", dsn)
-	//dbConn, err = sql.Open("mysql", "root:w199547@tcp(localhost:3306)/test?charset=utf8")
+
 	if err != nil {
 		panic(err.Error())
 	}

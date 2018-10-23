@@ -2,7 +2,7 @@ package db
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"myproject/models"
+	"JP-go-server/models"
 
 	"database/sql"
 			)
