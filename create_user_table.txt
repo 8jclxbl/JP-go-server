@@ -1,0 +1,2 @@
+CREATE TABLE user(userid int(11) not null auto_increment primary key,personid char(64) null default null,username char(64) not null,userpass char(64) not null,usernickname char(64) null default null,usersex char(8) null default null,userbirthday date null default null,userphone char(11) null default null,useremail char(64) null default null,userhomeplace char(64) null default null,useraddress char(64) null default null,userimgurl char(64) null default null,online boolean default false);
+
