@@ -1,68 +1,101 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
-	"JP-go-server/models"
 	"JP-go-server/db"
+	"JP-go-server/models"
 	"JP-go-server/util"
-	"io/ioutil"
 	"encoding/json"
+	"github.com/astaxie/beego"
+	"io/ioutil"
 )
 
 type UserController struct {
 	beego.Controller
+	jsReq models.JsonRequest
+	msg  models.Message
 }
 
-func (this *UserController) Reg() {
-	this.TplName="test.tpl"
-	var jsReq models.JsonRequest
-	var msg  models.Message
-
-	//从request中读取json数据
+func (this *UserController) Post() {
 	requestBody := this.Ctx.Request.Body
 	jsonTemp, err := ioutil.ReadAll(requestBody)
+	actionFromUrl := this.Ctx.Input.Param(":action")
+
 	//读取出错时的回复
 	if err != nil {
-		msg.Desc = "body read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc = "body read err: " + err.Error()
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 
 	//json解析并在有错时的回复
-	if err = json.Unmarshal(jsonTemp, &jsReq); err != nil {
-		msg.Desc = "json parse read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
+	if err = json.Unmarshal(jsonTemp, &this.jsReq); err != nil {
+		this.msg.Desc = "json parse read err: " + err.Error()
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
-	user := jsReq.Params.User
+
+	action := this.jsReq.Params.Action
+
+	if action != actionFromUrl {
+		this.msg.Desc = "actions from url and json are not the same: " + err.Error()
+		resp := GenRespStruct(false,this.msg)
+		this.Data["json"] = resp
+		this.ServeJSON()
+		return
+	}
+
+	switch action {
+	case "reg":
+		this.Reg()
+	case "login":
+		this.Login()
+	case "logout":
+		this.Logout()
+	case "update":
+		this.Update()
+	default:
+		this.msg.Desc = "Unknown method"
+		resp := GenRespStruct(false,this.msg)
+		this.Data["json"] = resp
+		this.ServeJSON()
+		return
+	}
+}
+
+func (this *UserController) Reg() {
+	this.TplName="test.tpl"
+
+	//从request中读取json数据
+
+	user := this.jsReq.Params.User
 
 	//检查数据库中该用户名是否已被占用
 	if userTemp,_ := db.GetUser(user.UserName); userTemp != nil {
 		//fmt.Println(userTemp)
-		msg.Desc = "user exists"
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc = "user exists"
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	} else {
 		//未被占用将注册信息写入数据库
-		err = db.CreatUser(user)
+		err := db.CreatUser(user)
 		//写入时出错的回复
 		if err != nil {
-			msg.Desc = "db err: " + err.Error()
-			resp := GenRespStruct(false,msg)
+			this.msg.Desc = "db err: " + err.Error()
+			resp := GenRespStruct(false,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
 		}
 		//注册成功时回复数据库生成的用户id
 		userId, _ := db.GetUserID(user.UserName)
-		msg.Userid = userId
-		resp := GenRespStruct(true,msg)
+		this.msg.Userid = userId
+		resp := GenRespStruct(true,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -72,75 +105,36 @@ func (this *UserController) Reg() {
 func (this *UserController) Update() {
 	this.TplName ="test.tpl"
 
-	var jsReq models.JsonRequest
-	var msg 	models.Message
-
-	requestBody := this.Ctx.Request.Body
-	jsonTemp, err := ioutil.ReadAll(requestBody)
-	if err != nil {
-		msg.Desc = "body read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
-
-	if err = json.Unmarshal(jsonTemp, &jsReq); err != nil {
-		msg.Desc = "json parse read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
 	//上面的错误处理与注册一致
-	user := jsReq.Params.User
+	user := this.jsReq.Params.User
 	//更新数据库的数据
-	err = db.UpdateUser(user)
+	err := db.UpdateUser(user)
 	if err != nil {
-		msg.Desc ="update failed" + err.Error()
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc ="update failed" + err.Error()
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	//更新成功
-	msg.Desc = "updated"
-	resp := GenRespStruct(true,msg)
+	this.msg.Desc = "updated"
+	resp := GenRespStruct(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
 	return
 }
 
 func (this *UserController) Login() {
-	var jsReq models.JsonRequest
-	var msg models.Message
 
-	requestBody := this.Ctx.Request.Body
-	jsonTemp, err := ioutil.ReadAll(requestBody)
-	if err != nil {
-		msg.Desc = "body read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
-
-	if err = json.Unmarshal(jsonTemp, &jsReq); err != nil {
-		msg.Desc = "json parse read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
 	//上面的错误处理同注册
 	//从数据库中读入要登陆用户的信息
-	user := jsReq.Params.User
+	user := this.jsReq.Params.User
 	userTemp, err:= db.GetUser(user.UserName)
 
 	//如果读取数据为空，说明该用户尚未注册
 	if userTemp == nil {
-		msg.Desc = "user had not registed"
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc = "user had not registed"
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -148,8 +142,8 @@ func (this *UserController) Login() {
 
 	//处理获取用户信息时的数据库读取错误
 	if err != nil {
-		msg.Desc = "db err: " + err.Error()
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc = "db err: " + err.Error()
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -161,22 +155,22 @@ func (this *UserController) Login() {
 			state,loginState,err := db.LogIn(user.UserName)
 			if loginState {
 				//成功登陆
-				msg.Desc = "sign in success"
+				this.msg.Desc = "sign in success"
 			}	else {
 				//登陆时数据库登陆状态调整出错
 				if err != nil {
-					msg.Desc=state + err.Error()
+					this.msg.Desc=state + err.Error()
 				}
-				msg.Desc=state
+				this.msg.Desc=state
 			}
-			resp := GenRespStruct(loginState,msg)
+			resp := GenRespStruct(loginState,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
 		} else {
 			//密码错误
-			msg.Desc = "password unmatched"
-			resp := GenRespStruct(false,msg)
+			this.msg.Desc = "password unmatched"
+			resp := GenRespStruct(false,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
@@ -186,33 +180,14 @@ func (this *UserController) Login() {
 }
 
 func (this *UserController) Logout() {
-	var jsReq models.JsonRequest
-	var msg models.Message
 
-	requestBody := this.Ctx.Request.Body
-	jsonTemp, err := ioutil.ReadAll(requestBody)
-	if err != nil {
-		msg.Desc = "body read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
-
-	if err = json.Unmarshal(jsonTemp, &jsReq); err != nil {
-		msg.Desc = "json parse read err: " + err.Error()
-		resp := GenRespStruct(false,msg)
-		this.Data["json"] = resp
-		this.ServeJSON()
-		return
-	}
-	user := jsReq.Params.User
+	user := this.jsReq.Params.User
 
 	userName := user.UserName
 	userTemp, err:= db.GetUser(userName)
 	if userTemp == nil {
-		msg.Desc = "user had not registed"
-		resp := GenRespStruct(false,msg)
+		this.msg.Desc = "user had not registed"
+		resp := GenRespStruct(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -220,15 +195,15 @@ func (this *UserController) Logout() {
 
 	state,logOutState,err := db.LogOut(userName)
 	if logOutState {
-		msg.Desc = "logout successd"
+		this.msg.Desc = "logout successd"
 	}	else {
 		if err != nil {
-			msg.Desc = state + err.Error()
+			this.msg.Desc = state + err.Error()
 		} else {
-			msg.Desc = state
+			this.msg.Desc = state
 		}
 	}
-	resp := GenRespStruct(logOutState,msg)
+	resp := GenRespStruct(logOutState,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
 	return
