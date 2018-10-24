@@ -3,7 +3,7 @@ package db
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"JP-go-server/models"
-
+	"JP-go-server/util"
 	"database/sql"
 			)
 
@@ -22,7 +22,9 @@ func CreatUser(user models.User) error{
 		return err
 	}
 
-	_, err = stmt.Exec(user.UserName,user.UserPass,user.UserNickname,
+	pass := util.Cipher(user.UserPass)
+
+	_, err = stmt.Exec(user.UserName,pass,user.UserNickname,
 		user.UserSex,user.UserBirthday,user.UserPhone,user.UserEmail,
 		user.UserHomeplace,user.UserAddress,user.UserImgurl)
 

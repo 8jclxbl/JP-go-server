@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"JP-go-server/models"
-	)
+	"JP-go-server/util"
+)
 
 //登陆
 type LoginController struct {
@@ -62,7 +63,7 @@ func (this *LoginController) Post() {
 
 	} else {
 		//密码验证
-		if user.UserPass == userTemp.UserPass {
+		if util.Cipher(user.UserPass) == userTemp.UserPass {
 			//登陆状态调整
 			state,loginState,err := db.LogIn(user.UserName)
 			if loginState {
