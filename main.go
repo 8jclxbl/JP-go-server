@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "myproject/routers"
+	_ "JP-go-server/routers"
 	"github.com/astaxie/beego"
 )
 
