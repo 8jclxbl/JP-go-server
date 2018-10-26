@@ -1,12 +1,23 @@
 package models
 
 
-type BaseResponse struct {
+type UserResponse struct {
 	Success bool	`json:"success"`
-	Msg 	Message	`json:"msg"`
+	Msg 	UserMessage	`json:"msg"`
 }
 
-type Message struct {
-	Desc string		`json:"desc,omitempty"`
-	Userid string	`json:"user_id,omitempty"`
+type UserMessage struct {
+	Desc 		string	`json:"desc,omitempty"`
+	Userid 		string	`json:"user_id,omitempty"`
+
+}
+
+type PersonResponse struct {
+	Success bool	`json:"success"`
+	Msg 	PersonMessage	`json:"msg"`
+}
+
+type PersonMessage struct {
+	Desc 		string	`json:"desc,omitempty"`
+	PersonInfo 	Person	`json:"person_info,omitempty"`
 }

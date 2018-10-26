@@ -12,7 +12,7 @@ import (
 type UserController struct {
 	beego.Controller
 	jsReq models.JsonRequest
-	msg  models.Message
+	msg  models.UserMessage
 }
 
 func (this *UserController) Post() {
@@ -23,7 +23,7 @@ func (this *UserController) Post() {
 	//读取出错时的回复
 	if err != nil {
 		this.msg.Desc = "body read err: " + err.Error()
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -32,7 +32,7 @@ func (this *UserController) Post() {
 	//json解析并在有错时的回复
 	if err = json.Unmarshal(jsonTemp, &this.jsReq); err != nil {
 		this.msg.Desc = "json parse read err: " + err.Error()
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -41,8 +41,8 @@ func (this *UserController) Post() {
 	action := this.jsReq.Params.Action
 
 	if action != actionFromUrl {
-		this.msg.Desc = "actions from url and json are not the same: " + err.Error()
-		resp := GenRespStruct(false,this.msg)
+		this.msg.Desc = "actions from url and json are not the same"
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -59,7 +59,7 @@ func (this *UserController) Post() {
 		this.Update()
 	default:
 		this.msg.Desc = "Unknown method"
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -77,7 +77,7 @@ func (this *UserController) Reg() {
 	if userTemp,_ := db.GetUser(user.UserName); userTemp != nil {
 		//fmt.Println(userTemp)
 		this.msg.Desc = "user exists"
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -87,7 +87,7 @@ func (this *UserController) Reg() {
 		//写入时出错的回复
 		if err != nil {
 			this.msg.Desc = "db err: " + err.Error()
-			resp := GenRespStruct(false,this.msg)
+			resp := GenUserResp(false,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
@@ -95,7 +95,7 @@ func (this *UserController) Reg() {
 		//注册成功时回复数据库生成的用户id
 		userId, _ := db.GetUserID(user.UserName)
 		this.msg.Userid = userId
-		resp := GenRespStruct(true,this.msg)
+		resp := GenUserResp(true,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -111,14 +111,14 @@ func (this *UserController) Update() {
 	err := db.UpdateUser(user)
 	if err != nil {
 		this.msg.Desc ="update failed" + err.Error()
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	//更新成功
 	this.msg.Desc = "updated"
-	resp := GenRespStruct(true,this.msg)
+	resp := GenUserResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
 	return
@@ -134,7 +134,7 @@ func (this *UserController) Login() {
 	//如果读取数据为空，说明该用户尚未注册
 	if userTemp == nil {
 		this.msg.Desc = "user had not registed"
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -143,7 +143,7 @@ func (this *UserController) Login() {
 	//处理获取用户信息时的数据库读取错误
 	if err != nil {
 		this.msg.Desc = "db err: " + err.Error()
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -163,14 +163,14 @@ func (this *UserController) Login() {
 				}
 				this.msg.Desc=state
 			}
-			resp := GenRespStruct(loginState,this.msg)
+			resp := GenUserResp(loginState,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
 		} else {
 			//密码错误
 			this.msg.Desc = "password unmatched"
-			resp := GenRespStruct(false,this.msg)
+			resp := GenUserResp(false,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
 			return
@@ -187,7 +187,7 @@ func (this *UserController) Logout() {
 	userTemp, err:= db.GetUser(userName)
 	if userTemp == nil {
 		this.msg.Desc = "user had not registed"
-		resp := GenRespStruct(false,this.msg)
+		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
@@ -203,7 +203,7 @@ func (this *UserController) Logout() {
 			this.msg.Desc = state
 		}
 	}
-	resp := GenRespStruct(logOutState,this.msg)
+	resp := GenUserResp(logOutState,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
 	return
@@ -215,8 +215,8 @@ func (this *UserController) Logout() {
 //生成要写进response的json所来源的结构体
 //success：bool, 指示响应成功或失败
 //msg：Message struct,回复的消息字段
-func GenRespStruct(success bool,msg models.Message) *models.BaseResponse {
-	var resResp models.BaseResponse
+func GenUserResp(success bool,msg models.UserMessage) *models.UserResponse {
+	var resResp models.UserResponse
 	resResp.Success = success
 	resResp.Msg = msg
 	return  &resResp

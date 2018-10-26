@@ -11,8 +11,6 @@ import (
 
 //将新注册的用户数据写入数据库
 func CreatUser(user models.User) error{
-	//对密码进行加密存储
-	//pwd := Cipher(user.UserPass)
 	stmt, err := dbConn.Prepare("INSERT INTO user " +
 		"(username,userpass,usernickname,usersex,userbirthday," +
 		"userphone,useremail,userhomeplace,useraddress,userimgurl) " +
