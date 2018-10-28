@@ -9,4 +9,6 @@ type JsonData struct {
 	Action string	`json:"action"`
 	User
 	Person
+	Event
+	PersonSelect
 }

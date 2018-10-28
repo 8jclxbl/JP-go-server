@@ -1,37 +1,45 @@
 package db
 
 import (
-	_ "github.com/go-sql-driver/mysql"
 	"JP-go-server/models"
 	"JP-go-server/util"
 	"database/sql"
-			)
+	"errors"
+	_ "github.com/go-sql-driver/mysql"
+)
 
 //user的数据库调用
 
 //将新注册的用户数据写入数据库
-func CreatUser(user models.User) error{
+func CreatUser(user models.User) (string,error){
 	stmt, err := dbConn.Prepare("INSERT INTO user " +
-		"(username,userpass,usernickname,usersex,userbirthday," +
+		"(userid,username,userpass,usernickname,usersex,userbirthday," +
 		"userphone,useremail,userhomeplace,useraddress,userimgurl) " +
-		"VALUES (?,?,?,?,?,?,?,?,?,?)")
+		"VALUES (?,?,?,?,?,?,?,?,?,?,?)")
 
 	if err != nil {
-		return err
+		return "",err
 	}
 
+	UserId := util.GenerateId()
 	pass := util.Cipher(user.UserPass)
 
-	_, err = stmt.Exec(user.UserName,pass,user.UserNickname,
+	_, err = stmt.Exec(UserId,user.UserName,pass,user.UserNickname,
 		user.UserSex,user.UserBirthday,user.UserPhone,user.UserEmail,
 		user.UserHomeplace,user.UserAddress,user.UserImgurl)
 
 	if err != nil {
-		return err
+		return "",err
 	}
-
+/*
+	id,err := res.LastInsertId()
+	if err != nil {
+		return "",err
+	}
+	Id := strconv.Itoa(int(id))
+*/
 	defer stmt.Close()
-	return nil
+	return UserId,nil
 }
 
 //根据用户名更新用户数据
@@ -40,6 +48,9 @@ func UpdateUser(user models.User) error{
 	userTemp, err := GetUser(user.UserName)
 	if err != nil {
 		return err
+	}
+	if userTemp == nil {
+		return errors.New("user not exists")
 	}
 	//todo：revise by reflect
 	/*old := reflect.ValueOf(&userTemp).Elem()

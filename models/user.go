@@ -19,7 +19,7 @@ type User struct {
 	UserImgurl		string	`json:"user_imgurl"`
 
 	UserId 			string	`json:"user_id"`
-	PersonId		string	`json:"person_id"`
+	PersonId		string	`json:"user_person_id"`
 }
 
 func (u *User) String() string {

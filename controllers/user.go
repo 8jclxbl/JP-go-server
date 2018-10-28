@@ -67,12 +67,8 @@ func (this *UserController) Post() {
 }
 
 func (this *UserController) Reg() {
-	this.TplName="test.tpl"
-
 	//从request中读取json数据
-
 	user := this.jsReq.Params.User
-
 	//检查数据库中该用户名是否已被占用
 	if userTemp,_ := db.GetUser(user.UserName); userTemp != nil {
 		//fmt.Println(userTemp)
@@ -83,7 +79,7 @@ func (this *UserController) Reg() {
 		return
 	} else {
 		//未被占用将注册信息写入数据库
-		err := db.CreatUser(user)
+		userId,err := db.CreatUser(user)
 		//写入时出错的回复
 		if err != nil {
 			this.msg.Desc = "db err: " + err.Error()
@@ -93,7 +89,6 @@ func (this *UserController) Reg() {
 			return
 		}
 		//注册成功时回复数据库生成的用户id
-		userId, _ := db.GetUserID(user.UserName)
 		this.msg.Userid = userId
 		resp := GenUserResp(true,this.msg)
 		this.Data["json"] = resp
@@ -103,8 +98,6 @@ func (this *UserController) Reg() {
 }
 
 func (this *UserController) Update() {
-	this.TplName ="test.tpl"
-
 	//上面的错误处理与注册一致
 	user := this.jsReq.Params.User
 	//更新数据库的数据
