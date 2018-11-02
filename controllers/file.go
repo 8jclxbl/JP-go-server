@@ -4,6 +4,7 @@ import (
 	"JP-go-server/db"
 	"JP-go-server/models"
 	"github.com/astaxie/beego"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -39,13 +40,14 @@ func (this *FileController) Upload() {
 	now := time.Now()
 	timeStamp := now.Unix()
 	stamp := strconv.Itoa(int(timeStamp))
+	fileUrl := stamp + "." + fileType
 
 	path := "./upload/" + stamp + "." + fileType
 	this.SaveToFile("uploadfile",path)
 	defer file.Close()
 
 	fileTemp := models.File{
-		FileUrl:path,
+		FileUrl:fileUrl,
 		FileType:fileType,
 	}
 	//将文件相关信息写入数据库
@@ -58,7 +60,7 @@ func (this *FileController) Upload() {
 		return
 	}
 
-	this.msg.FileUrl = path
+	this.msg.FileUrl = fileUrl
 	this.msg.Desc ="上传成功"
 	resp := GenFileResp(true,this.msg)
 	this.Data["json"] = resp
@@ -70,7 +72,16 @@ func (this *FileController) Upload() {
 func (this *FileController) Delete() {
 	url:= this.Ctx.Input.Param(":file_url")
 
-	err := db.DeleteFile(url)
+	err := os.Remove("./upload/" + url)
+	if err != nil {
+		this.msg.Desc ="文件删除失败: " + err.Error()
+		resp := GenFileResp(false,this.msg)
+		this.Data["json"] = resp
+		this.ServeJSON()
+		return
+	}
+
+	err = db.DeleteFile(url)
 	if err != nil {
 		this.msg.Desc ="删除失败: " + err.Error()
 		resp := GenFileResp(false,this.msg)

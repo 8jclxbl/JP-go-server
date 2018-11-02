@@ -157,6 +157,7 @@ func (this *UserController) Login() {
 				}
 				this.msg.Desc=state
 			}
+			this.msg.Userid = userTemp.UserId
 			resp := GenUserResp(loginState,this.msg)
 			this.Data["json"] = resp
 			this.ServeJSON()
