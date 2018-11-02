@@ -14,4 +14,5 @@ func init() {
 	beego.Router("/api/event/:action",&controllers.EventController{},"post:Post")
 	beego.Router("/api/file/upload",&controllers.FileController{},"get:Get;post:Upload")
 	beego.Router("/api/file/delete&:file_url*",&controllers.FileController{},"get:Delete")
+	beego.Router("/api/file/set",&controllers.FileController{},"post:SetFile")
 }

@@ -29,6 +29,34 @@ func CreatFile(file models.File,eventId string) (string,error) {
 	return Id,nil
 }
 
+func SetEventId (id string, fileUrl string) error {
+
+	fileTemp, err := GetFileByUrl(fileUrl)
+	if err != nil{
+		return err
+	}
+	if fileTemp == nil {
+		return errors.New("数据库中无记录")
+	}
+
+
+	query := "UPDATE file SET eventid = ? WHERE fileurl = ?"
+	stmt, err := dbConn.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id,fileUrl)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+	return nil
+}
+
 func GetFile(id string,isFileId bool) (*models.File,error){
 	query1 := "SELECT eventid,fileurl,filetype FROM file WHERE id = ?"
 	query2 := "SELECT eventid,fileurl,filetype FROM file WHERE eventid = ?"

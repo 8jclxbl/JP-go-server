@@ -10,5 +10,6 @@ type JsonData struct {
 	User
 	Person
 	Event
+	File
 	PersonSelect
 }

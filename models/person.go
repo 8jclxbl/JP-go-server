@@ -9,7 +9,7 @@ type Person struct {
 	PersonAddress 	string 	`json:"person_address,omitempty"`
 	PersonImgurl	string	`json:"person_imgurl,omitempty"`
 	ParentId		string	`json:"parent_id,omitempty"`
-	UserId 			string	`json:"event_user_id,omitempty"`
+	UserId 			string	`json:"person_user_id,omitempty"`
 }
 
 //personlist的条件集合

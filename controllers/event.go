@@ -14,7 +14,7 @@ type EventController struct {
 	msg  models.EventMessage
 }
 
-//根据读到的方法名选择相应的破石头方法
+//根据读到的方法名选择相应的post方法
 func (this *EventController) Post() {
 	requestBody := this.Ctx.Request.Body
 	jsonTemp, err := ioutil.ReadAll(requestBody)
