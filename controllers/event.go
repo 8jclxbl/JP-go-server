@@ -4,7 +4,6 @@ import (
 	"JP-go-server/db"
 	"JP-go-server/models"
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego"
 	"io/ioutil"
 )
@@ -24,7 +23,7 @@ func (this *EventController) Post() {
 
 	//读取出错时的回复
 	if err != nil {
-		this.msg.Desc = "body read err: " + err.Error()
+		this.msg.Desc = "报文读取错误: " + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -33,18 +32,17 @@ func (this *EventController) Post() {
 
 	//json解析并在有错时的回复
 	if err = json.Unmarshal(jsonTemp, &this.jsReq); err != nil {
-		this.msg.Desc = "json parse read err: " + err.Error()
+		this.msg.Desc = "json解析错误: " + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
-	fmt.Println(this.jsReq)
 
 	action := this.jsReq.Params.Action
 
 	if action != actionFromUrl {
-		this.msg.Desc = "actions from url and json are not the same "
+		this.msg.Desc = "json和url中的方法不同名"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -57,7 +55,7 @@ func (this *EventController) Post() {
 	case "update":
 		this.Update()
 	default:
-		this.msg.Desc = "Unknown method"
+		this.msg.Desc = "未知方法"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -77,7 +75,7 @@ func (this *EventController) Get() {
 	case "list":
 		this.List()
 	default:
-		this.msg.Desc = "Unknown method"
+		this.msg.Desc = "未知方法"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -91,14 +89,14 @@ func (this *EventController) Create() {
 	eventID,err := db.CreatEvent(Event)
 	//写入时出错的回复
 	if err != nil {
-		this.msg.Desc = "db err: " + err.Error()
+		this.msg.Desc = "数据库错误: " + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 
-	this.msg.Desc = "event created success"
+	this.msg.Desc = "事件创建成功"
 	this.msg.EventInfo.EventId = eventID
 	resp := GenEventResp(true,this.msg)
 	this.Data["json"] = resp
@@ -111,17 +109,16 @@ func (this *EventController) Update() {
 	//上面的错误处理与注册一致
 	event := this.jsReq.Params.Event
 	//更新数据库的数据
-	fmt.Println(event.PersonId)
 	err := db.UpdateEvent(event)
 	if err != nil {
-		this.msg.Desc ="update failed " + err.Error()
+		this.msg.Desc ="更新失败 " + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	//更新成功
-	this.msg.Desc = "updated"
+	this.msg.Desc = "更新成功"
 	resp := GenEventResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -134,13 +131,13 @@ func (this *EventController) Delete() {
 	id = id[1:]
 	err := db.DeleteEvent(id)
 	if err != nil {
-		this.msg.Desc ="delete failed:" + err.Error()
+		this.msg.Desc ="删除失败:" + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
-	this.msg.Desc ="delete success"
+	this.msg.Desc ="删除成功"
 	resp := GenEventResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -154,7 +151,7 @@ func (this *EventController) View() {
 	eventTemp,err := db.GetEventById(id)
 
 	if eventTemp == nil {
-		this.msg.Desc ="event not exists"
+		this.msg.Desc ="事件不存在"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -162,14 +159,14 @@ func (this *EventController) View() {
 	}
 
 	if err != nil {
-		this.msg.Desc ="delete failed:" + err.Error()
+		this.msg.Desc ="事件获取失败:" + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	this.msg.EventInfo = *eventTemp
-	this.msg.Desc ="get success"
+	this.msg.Desc ="事件获取成功"
 	resp := GenEventResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -184,14 +181,14 @@ func (this *EventController) List() {
 	events,err := db.GetByPersonId(id)
 
 	if err != nil {
-		this.msg.Desc ="db query failed:" + err.Error()
+		this.msg.Desc ="数据库查询失败:" + err.Error()
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	if events == nil {
-		this.msg.Desc ="this person doesn't have any events"
+		this.msg.Desc ="该人物尚无事件"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -199,7 +196,7 @@ func (this *EventController) List() {
 	}
 
 	this.msg.EventList = events
-	this.msg.Desc ="query success"
+	this.msg.Desc ="查询成功"
 	resp := GenEventResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()

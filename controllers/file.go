@@ -25,7 +25,7 @@ func (this *FileController) Upload() {
 	//从前端的uploadfile的input中读取
 	file,fileHEader,err := this.GetFile("uploadfile")
 	if err != nil {
-		this.msg.Desc ="upload error:" + err.Error()
+		this.msg.Desc ="上传错误:" + err.Error()
 		resp := GenFileResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -51,7 +51,7 @@ func (this *FileController) Upload() {
 	//将文件相关信息写入数据库
 	_, err = db.CreatFile(fileTemp,"")
 	if err != nil {
-		this.msg.Desc ="db save error:" + err.Error()
+		this.msg.Desc ="数据库存储错误:" + err.Error()
 		resp := GenFileResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -59,7 +59,7 @@ func (this *FileController) Upload() {
 	}
 
 	this.msg.FileUrl = path
-	this.msg.Desc ="upload success"
+	this.msg.Desc ="上传成功"
 	resp := GenFileResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -72,13 +72,13 @@ func (this *FileController) Delete() {
 
 	err := db.DeleteFile(url)
 	if err != nil {
-		this.msg.Desc ="delete failed: " + err.Error()
+		this.msg.Desc ="删除失败: " + err.Error()
 		resp := GenFileResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
-	this.msg.Desc ="delete success"
+	this.msg.Desc ="删除成功"
 	resp := GenFileResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()

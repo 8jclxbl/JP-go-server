@@ -1,11 +1,11 @@
 package db
 
 import (
-	"JP-go-server/models"
-	"JP-go-server/util"
-	"database/sql"
-	"errors"
-	_ "github.com/go-sql-driver/mysql"
+"JP-go-server/models"
+"JP-go-server/util"
+"database/sql"
+"errors"
+_ "github.com/go-sql-driver/mysql"
 )
 
 //user的数据库调用
@@ -31,13 +31,13 @@ func CreatUser(user models.User) (string,error){
 	if err != nil {
 		return "",err
 	}
-/*
-	id,err := res.LastInsertId()
-	if err != nil {
-		return "",err
-	}
-	Id := strconv.Itoa(int(id))
-*/
+	/*
+		id,err := res.LastInsertId()
+		if err != nil {
+			return "",err
+		}
+		Id := strconv.Itoa(int(id))
+	*/
 	defer stmt.Close()
 	return UserId,nil
 }
@@ -219,13 +219,13 @@ func StateAdjust(userName string,state bool) error {
 func LogIn(userName string) (string,bool, error){
 	online,err := IsOnline(userName)
 	if err != nil{
-		return "can't get state",false,err
+		return "获取登陆状态出错",false,err
 	}
 	if online {
-		return "user has onlined",false,nil
+		return "用户已在线",false,nil
 	} else {
 		err = StateAdjust(userName,true)
-		return "login success",true,nil
+		return "登陆成功",true,nil
 	}
 }
 
@@ -233,13 +233,13 @@ func LogIn(userName string) (string,bool, error){
 func LogOut(userName string) (string, bool, error){
 	online,err := IsOnline(userName)
 	if err != nil{
-		return "can't get state",false,err
+		return "获取登陆状态出错",false,err
 	}
 	if !online {
-		return "user hasn't onlined",false,nil
+		return "该用户未在线",false,nil
 	} else {
 		err = StateAdjust(userName,false)
-		return "logout success",true,nil
+		return "登出成功",true,nil
 	}
 }
 

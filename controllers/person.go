@@ -22,7 +22,7 @@ func (this *PersonController) Post() {
 
 	//读取出错时的回复
 	if err != nil {
-		this.msg.Desc = "body read err: " + err.Error()
+		this.msg.Desc = "报文读取错误: " + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -31,7 +31,7 @@ func (this *PersonController) Post() {
 
 	//json解析并在有错时的回复
 	if err = json.Unmarshal(jsonTemp, &this.jsReq); err != nil {
-		this.msg.Desc = "json parse read err: " + err.Error()
+		this.msg.Desc = "json解析错误: " + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -41,7 +41,7 @@ func (this *PersonController) Post() {
 	action := this.jsReq.Params.Action
 
 	if action != actionFromUrl {
-		this.msg.Desc = "actions from url and json are not the same: "
+		this.msg.Desc = "json中的方法和url不同名: "
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -56,7 +56,7 @@ func (this *PersonController) Post() {
 	case "list":
 		this.List()
 	default:
-		this.msg.Desc = "Unknown method"
+		this.msg.Desc = "未知方法"
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -74,7 +74,7 @@ func (this *PersonController) Get() {
 		this.View()
 
 	default:
-		this.msg.Desc = "Unknown method"
+		this.msg.Desc = "未知方法"
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -88,14 +88,14 @@ func (this *PersonController) Create() {
 	personID,err := db.CreatPerson(person)
 	//写入时出错的回复
 	if err != nil {
-		this.msg.Desc = "db err: " + err.Error()
+		this.msg.Desc = "数据库错误: " + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 
-	this.msg.Desc = "person created success"
+	this.msg.Desc = "人物创建成功"
 	this.msg.PersonInfo.PersonId = personID
 	resp := GenPersonResp(true,this.msg)
 	this.Data["json"] = resp
@@ -106,17 +106,16 @@ func (this *PersonController) Create() {
 //更新人物对像
 func (this *PersonController) Update() {
 	person := this.jsReq.Params.Person
-
 	err := db.UpdatePerson(person)
 	if err != nil {
-		this.msg.Desc ="update failed: " + err.Error()
+		this.msg.Desc ="更新失败: " + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	//更新成功
-	this.msg.Desc = "updated"
+	this.msg.Desc = "更新成功"
 	resp := GenPersonResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -134,21 +133,21 @@ func (this *PersonController) List() {
 	//获取满足条件的人物对象
 	people, err := db.ListPerson(condition)
 	if err != nil {
-		this.msg.Desc ="db query failed:" + err.Error()
+		this.msg.Desc ="数据库查询失败:" + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	if people == nil {
-		this.msg.Desc ="this person doesn't have any events"
+		this.msg.Desc ="没有符合要求的人物"
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 	this.msg.PeopleList = people
-	this.msg.Desc ="query success"
+	this.msg.Desc ="查询成功"
 	resp := GenPersonResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -162,13 +161,13 @@ func (this *PersonController) Delete() {
 	id = id[1:]
 	err := db.DeletePerson(id)
 	if err != nil {
-		this.msg.Desc ="delete failed:" + err.Error()
+		this.msg.Desc ="删除失败:" + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
-	this.msg.Desc ="delete success"
+	this.msg.Desc ="删除成功"
 	resp := GenPersonResp(true,this.msg)
 	this.Data["json"] = resp
 	this.ServeJSON()
@@ -182,7 +181,7 @@ func (this *PersonController) View() {
 	person, err := db.GetPersonById(id)
 
 	if person == nil {
-		this.msg.Desc =" person not exists"
+		this.msg.Desc ="人物不存在"
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -190,14 +189,14 @@ func (this *PersonController) View() {
 	}
 
 	if err != nil {
-		this.msg.Desc =" get object failed:" + err.Error()
+		this.msg.Desc ="数据库查询出错:" + err.Error()
 		resp := GenPersonResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
 		return
 	}
 
-	this.msg.Desc ="get success"
+	this.msg.Desc ="获取成功"
 	this.msg.PersonInfo = *person
 	resp := GenPersonResp(true,this.msg)
 	this.Data["json"] = resp

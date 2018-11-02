@@ -39,7 +39,7 @@ func GetPersonById(personId string) (*models.Person, error) {
 	stmt, err := dbConn.Prepare("SELECT " +
 		"personname,personsex,personbirthday,personhomeplace," +
 		"personaddress,personimgurl,parentid,userid " +
-		"FROM person Where personid = ? ")
+		"FROM person WHERE personid = ? ")
 
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func UpdatePerson(person models.Person) error{
 		return err
 	}
 	if personTemp == nil {
-		return errors.New("person not exists")
+		return errors.New("人物不存在")
 	}
 
 	if person.PersonName == "" {
@@ -192,7 +192,7 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 	}
 
 	if conditionCount == 0 {
-		return nil,errors.New("no conditions")
+		return nil,errors.New("未输入任何条件")
 	}
 
 	rows,err := dbConn.Query(sql)
@@ -233,7 +233,7 @@ func DeletePerson(id string) error{
 	}
 
 	if personTemp == nil {
-		return errors.New("person not exists")
+		return errors.New("人物不存在")
 	}
 
 	stmt, err := dbConn.Prepare("DELETE FROM person " +

@@ -37,7 +37,7 @@ func CreatEvent(event models.Event) (string,error){
 func UpdateEvent(event models.Event) error{
 	eventTemp, err := GetEventById(event.EventId)
 	if eventTemp == nil {
-		return errors.New("event not exists")
+		return errors.New("时间不存在")
 	}
 
 	if err != nil {
@@ -137,7 +137,7 @@ func DeleteEvent(id string) error {
 		return err
 	}
 	if eventTemp == nil {
-		return errors.New("event not exists")
+		return errors.New("事件不存在")
 	}
 
 	stmt, err := dbConn.Prepare("DELETE FROM event " +

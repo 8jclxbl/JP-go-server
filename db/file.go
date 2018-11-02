@@ -94,7 +94,7 @@ func DeleteFile(fileUrl string) error {
 		return err
 	}
 	if fileTemp == nil {
-		return errors.New("file not exists")
+		return errors.New("文件不存在")
 	}
 
 	stmt, err := dbConn.Prepare("DELETE FROM file " +
