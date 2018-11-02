@@ -26,7 +26,7 @@ func (this *FileController) Get() {
 	this.TplName = "upload.html"
 }
 
-func (this *FileController) SetFile() {
+func (this *FileController) Update() {
 	requestBody := this.Ctx.Request.Body
 	jsonTemp, err := ioutil.ReadAll(requestBody)
 
@@ -50,7 +50,7 @@ func (this *FileController) SetFile() {
 
 	file := this.jsReq.Params.File
 	fmt.Println(file)
-	err = db.SetEventId(file.EventID,file.FileUrl)
+	err = db.UpdateFile(file)
 	if err != nil {
 		this.msg.Desc ="设置失败 " + err.Error()
 		resp := GenFileResp(false,this.msg)

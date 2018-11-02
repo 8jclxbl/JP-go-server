@@ -29,9 +29,9 @@ func CreatFile(file models.File,eventId string) (string,error) {
 	return Id,nil
 }
 
-func SetEventId (id string, fileUrl string) error {
+func UpdateFile (file models.File) error {
 
-	fileTemp, err := GetFileByUrl(fileUrl)
+	fileTemp, err := GetFileByUrl(file.FileUrl)
 	if err != nil{
 		return err
 	}
@@ -39,15 +39,22 @@ func SetEventId (id string, fileUrl string) error {
 		return errors.New("数据库中无记录")
 	}
 
+	if file.FileType == "" {
+		file.FileType = fileTemp.FileType
+	}
+	if file.EventID == "" {
+		file.EventID = fileTemp.EventID
+	}
 
-	query := "UPDATE file SET eventid = ? WHERE fileurl = ?"
+
+	query := "UPDATE file SET eventid = ?,filetype = ? WHERE fileurl = ?"
 	stmt, err := dbConn.Prepare(query)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(id,fileUrl)
+	_, err = stmt.Exec(file.EventID,file.FileType,file.FileUrl)
 
 	if err != nil {
 		return err
