@@ -124,16 +124,8 @@ func GetFileByUrl(url string) (*models.File,error){
 }
 
 func DeleteFile(fileUrl string) error {
-	fileTemp, err := GetFileByUrl(fileUrl)
-	if err != nil{
-		return err
-	}
-	if fileTemp == nil {
-		return errors.New("数据库中无记录")
-	}
 
-	stmt, err := dbConn.Prepare("DELETE FROM file " +
-		"WHERE fileurl = ? ")
+	stmt, err := dbConn.Prepare("DELETE FROM file WHERE fileurl = ? ")
 
 	if err != nil {
 		return err

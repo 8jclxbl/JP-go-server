@@ -18,7 +18,14 @@ func CreatEvent(event models.Event) (string,error){
 	}
 	EventId := util.GenerateId()
 
-	_, err = stmt.Exec(EventId,event.EventTitle,event.EventContent,event.EventTime,event.PersonId)
+	var eventTime interface{}
+	if event.EventTime == "" {
+		eventTime = sql.NullString{}
+	} else {
+		eventTime = event.EventTime
+	}
+
+	_, err = stmt.Exec(EventId,event.EventTitle,event.EventContent,eventTime,event.PersonId)
 
 	if err != nil {
 		return "",err
@@ -77,7 +84,7 @@ func UpdateEvent(event models.Event) error{
 }
 
 func GetByPersonId(id string) ([]models.Event,error) {
-	rows,err := dbConn.Query("SELECT eventid,eventtitle,eventcontent,eventtime FROM event WHERE personid = ?",id)
+	rows,err := dbConn.Query("SELECT eventid,eventtitle,eventcontent,eventtime FROM event WHERE personid = ? ORDER BY id DESC",id)
 	if err != nil {
 		return nil,err
 	}
@@ -107,6 +114,7 @@ func GetEventById(id string) (*models.Event,error) {
 	if err != nil {
 		return nil,err
 	}
+
 	var eventtitle,eventcontent,eventtime,personid string
 	err = stmt.QueryRow(id).Scan(&eventtitle,&eventcontent,
 		&eventtime,&personid)
@@ -132,16 +140,8 @@ func GetEventById(id string) (*models.Event,error) {
 }
 
 func DeleteEvent(id string) error {
-	eventTemp, err := GetEventById(id)
-	if err != nil{
-		return err
-	}
-	if eventTemp == nil {
-		return errors.New("事件不存在")
-	}
 
-	stmt, err := dbConn.Prepare("DELETE FROM event " +
-		"WHERE eventid = ? ")
+	stmt, err := dbConn.Prepare("DELETE FROM event WHERE eventid = ? ")
 
 	if err != nil {
 		return err

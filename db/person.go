@@ -227,17 +227,8 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 }
 
 func DeletePerson(id string) error{
-	personTemp, err := GetPersonById(id)
-	if err != nil {
-		return err
-	}
 
-	if personTemp == nil {
-		return errors.New("人物不存在")
-	}
-
-	stmt, err := dbConn.Prepare("DELETE FROM person " +
-		"WHERE personid = ? ")
+	stmt, err := dbConn.Prepare("DELETE FROM person WHERE personid = ? ")
 
 	if err != nil {
 		return err
