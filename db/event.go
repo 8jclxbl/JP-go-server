@@ -101,6 +101,11 @@ func GetByPersonId(id string) ([]models.Event,error) {
 			EventTime:eventtime,
 			PersonId:id,
 		}
+		eventid = ""
+		eventtitle = ""
+		eventcontent = ""
+		eventtime = ""
+
 		events = append(events,eventTemp)
 	}
 

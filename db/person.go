@@ -216,6 +216,16 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 			UserId:userid,
 		}
 		people = append(people,personTemp)
+
+		personid = ""
+		personname = ""
+		personsex = ""
+		personbirthday = ""
+		personhomeplace = ""
+		personaddress = ""
+		personimgurl = ""
+		parentid = ""
+		userid = ""
 	}
 	maxItems := personSelect.ConPageNum * PageMax
 	if maxItems < len(people) {
