@@ -6,24 +6,23 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 
-const PageMax = 20
 func CreatPerson(person models.Person) (string, error){
 
 	stmt, err := dbConn.Prepare("INSERT INTO person " +
-		"(personid,personname,personsex,personbirthday,personhomeplace," +
+		"(personid,personname,persondescribe,personsex,personbirthday,personhomeplace," +
 		"personaddress,personimgurl,parentid,userid) " +
-		"VALUES (?,?,?,?,?,?,?,?,?)")
+		"VALUES (?,?,?,?,?,?,?,?,?,?)")
 
 	if err != nil {
 		return "",err
 	}
-
 	PersonId := util.GenerateId()
 
-	_, err = stmt.Exec(PersonId,person.PersonName,person.PersonSex,person.PersonBirthday,
+	_, err = stmt.Exec(PersonId,person.PersonName,person.PersonDescribe,person.PersonSex,person.PersonBirthday,
 		person.PersonHomeplace,person.PersonAddress,person.PersonImgurl,
 		person.ParentId,person.UserId)
 
@@ -37,16 +36,16 @@ func CreatPerson(person models.Person) (string, error){
 
 func GetPersonById(personId string) (*models.Person, error) {
 	stmt, err := dbConn.Prepare("SELECT " +
-		"personname,personsex,personbirthday,personhomeplace," +
+		"personname,persondescribe,personsex,personbirthday,personhomeplace," +
 		"personaddress,personimgurl,parentid,userid " +
 		"FROM person WHERE personid = ? ")
 
 	if err != nil {
 		return nil, err
 	}
-	var personname,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
+	var personname,persondescribe,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
 	err = stmt.QueryRow(personId).Scan(
-		&personname,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid,)
+		&personname,&persondescribe,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid,)
 
 	if err != nil && err != sql.ErrNoRows {
 		//fmt.Println("content err")
@@ -61,6 +60,7 @@ func GetPersonById(personId string) (*models.Person, error) {
 	personTemp := &models.Person{
 		PersonId:personId,
 		PersonName:personname,
+		PersonDescribe:persondescribe,
 		PersonSex:personsex,
 		PersonBirthday:personbirthday,
 		PersonHomeplace:personhomeplace,
@@ -76,7 +76,7 @@ func GetPersonById(personId string) (*models.Person, error) {
 
 func GetPersonByName(userName string) (*models.Person, error) {
 	stmt, err := dbConn.Prepare("SELECT " +
-		"personid,personname,personsex,personbirthday,personhomeplace," +
+		"personid,personname,persondescribe,personsex,personbirthday,personhomeplace," +
 		"personaddress,personimgurl,parentid,userid " +
 		"FROM person WHERE personname = ? ")
 
@@ -84,9 +84,9 @@ func GetPersonByName(userName string) (*models.Person, error) {
 		return nil, err
 	}
 	fmt.Println(err.Error())
-	var personid,personname,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
+	var personid,personname,persondescribe,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
 	err = stmt.QueryRow(userName).Scan(
-		&personid,&personname,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
+		&personid,&personname,&persondescribe,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
 
 	if err != nil && err != sql.ErrNoRows {
 		//fmt.Println("content err")
@@ -101,6 +101,7 @@ func GetPersonByName(userName string) (*models.Person, error) {
 	personTemp := &models.Person{
 		PersonId:personid,
 		PersonName:personname,
+		PersonDescribe:persondescribe,
 		PersonSex:personsex,
 		PersonBirthday:personbirthday,
 		PersonHomeplace:personhomeplace,
@@ -115,19 +116,28 @@ func GetPersonByName(userName string) (*models.Person, error) {
 }
 
 func UpdatePerson(person models.Person) error{
-	personTemp, err := GetPersonByName(person.PersonName)
+	//Change by TIAN
+	//Date 2018-11-03
+	//personTemp, err := GetPersonByName(person.PersonName)
+	
+	personTemp, err := GetPersonById(person.PersonId)
 	if err != nil {
 		return err
 	}
+
 	if personTemp == nil {
 		return errors.New("人物不存在")
 	}
 
+/*
 	if person.PersonName == "" {
 		person.PersonName = personTemp.PersonName
 	}
 	if person.PersonSex == "" {
 		person.PersonSex = personTemp.PersonSex
+	}
+	if person.PersonDescribe == "" {
+		person.PersonDescribe = personTemp.PersonDescribe
 	}
 	if person.PersonBirthday == "" {
 		person.PersonBirthday = personTemp.PersonBirthday
@@ -141,24 +151,23 @@ func UpdatePerson(person models.Person) error{
 	if person.PersonImgurl == "" {
 		person.PersonImgurl = personTemp.PersonImgurl
 	}
-	if person.PersonSex == "" {
-		person.PersonSex = personTemp.PersonSex
-	}
 	if person.ParentId == "" {
 		person.ParentId = personTemp.ParentId
 	}
+	if person.UserId == "" {
+		person.UserId = personTemp.UserId
+	}
+*/
 
-
-	stmt, err := dbConn.Prepare("UPDATE person SET personname=?,personsex=?," +
-		"personbirthday=?,personhomeplace=?,personaddress=?,personimgurl=?," +
-		"parentid=? WHERE personname=?")
+	stmt, err := dbConn.Prepare("UPDATE person SET personname=?,persondescribe=?,personsex=?," +
+		"personbirthday=?,personhomeplace=?,personaddress=?,personimgurl=?,parentid=?,userid=? WHERE personid=?")
 
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(person.PersonName,person.PersonSex,person.PersonBirthday,
-		person.PersonHomeplace,person.PersonAddress,person.PersonImgurl,person.ParentId,person.PersonName)
+	_, err = stmt.Exec(person.PersonName,person.PersonDescribe,person.PersonSex,person.PersonBirthday,
+		person.PersonHomeplace,person.PersonAddress,person.PersonImgurl,person.ParentId,person.UserId,person.PersonId)
 
 	if err != nil {
 		return err
@@ -169,8 +178,20 @@ func UpdatePerson(person models.Person) error{
 }
 
 func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
+	/*
 	sql := "SELECT personid,personname,personsex,personbirthday,personhomeplace," +
 		"personaddress,personimgurl,parentid,userid FROM person WHERE 1"
+	*/
+	/*
+		sql := "SELECT personid,personname,personsex,personbirthday,personhomeplace," +
+		"personaddress,personimgurl,parentid,userid FROM person WHERE 1 "
+		fmt.Println(personSelect.ConPersonName)
+	*/
+	sql := "SELECT personid,personname,persondescribe,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid FROM person WHERE 1"
+
+	step := personSelect.ConPageSize
+	start := personSelect.ConPageNum * step
+
 
 	//如果json没有包含任何条件，会导致输出数据库中的全部数据，个人不知具体业务逻辑是否需要这样，这里先这样处理，如果没有条件时会报错
 	conditionCount := 0
@@ -190,35 +211,45 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 		sql = sql + " AND personname='" + personSelect.ConPersonName + "'"
 		conditionCount += 1
 	}
+	if personSelect.ConUserId != "" {
+		sql = sql + " AND userid='" + personSelect.ConUserId + "'"
+		conditionCount += 1
+	}
 
+	
 	if conditionCount == 0 {
 		return nil,errors.New("未输入任何条件")
 	}
-
+	
+	sql = sql + " order by id desc limit " + strconv.Itoa(start) + "," + strconv.Itoa(step)
 	rows,err := dbConn.Query(sql)
 	if err != nil {
 		return nil,err
 	}
-	var personid,personname,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
+	var personid,personname,persondescribe,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
 	var people []models.Person
 
 	for rows.Next() {
 		err = rows.Scan(
-			&personid,&personname,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
+			&personid,&personname,&persondescribe,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
+
 		personTemp := models.Person{
 			PersonId:personid,
 			PersonName:personname,
+			PersonDescribe:persondescribe,
 			PersonSex:personsex,
 			PersonBirthday:personbirthday,
 			PersonHomeplace:personhomeplace,
 			PersonAddress:personaddress,
 			PersonImgurl:personimgurl,
+			ParentId:parentid,
 			UserId:userid,
 		}
 		people = append(people,personTemp)
 
 		personid = ""
 		personname = ""
+		persondescribe = ""
 		personsex = ""
 		personbirthday = ""
 		personhomeplace = ""
@@ -226,11 +257,9 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 		personimgurl = ""
 		parentid = ""
 		userid = ""
+
 	}
-	maxItems := personSelect.ConPageNum * PageMax
-	if maxItems < len(people) {
-		people=people[:maxItems-1]
-	}
+
 
 	defer rows.Close()
 	return people,nil

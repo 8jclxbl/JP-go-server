@@ -126,8 +126,13 @@ func (this *PersonController) Update() {
 func (this *PersonController) List() {
 	condition := this.jsReq.Params.PersonSelect
 	//一个输入的合法性检验，该条件忽略时由于数据查询后需要根据页数上限得到条目上限进行截取，如果不设置默认为0，会导致条目上线为0，而截取时条目数目小于上限，导致slice越界
+	/*
 	if condition.ConPageNum == 0 {
 		condition.ConPageNum = 1
+	}
+	*/
+	if condition.ConPageSize == 0 {
+		condition.ConPageSize = 20
 	}
 
 	//获取满足条件的人物对象

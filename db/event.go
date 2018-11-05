@@ -18,6 +18,8 @@ func CreatEvent(event models.Event) (string,error){
 	}
 	EventId := util.GenerateId()
 
+	print(EventId)
+
 	var eventTime interface{}
 	if event.EventTime == "" {
 		eventTime = sql.NullString{}
@@ -51,7 +53,7 @@ func UpdateEvent(event models.Event) error{
 		return err
 	}
 
-
+/*
 	if event.EventTitle == "" {
 		event.EventTitle = eventTemp.EventTitle
 	}
@@ -64,7 +66,7 @@ func UpdateEvent(event models.Event) error{
 	if event.PersonId == "" {
 		event.PersonId = eventTemp.PersonId
 	}
-
+*/
 
 	stmt, err := dbConn.Prepare("UPDATE event SET eventtitle=?,eventcontent=?," +
 		"eventtime=?,personid=? WHERE eventid=?")
@@ -94,17 +96,20 @@ func GetByPersonId(id string) ([]models.Event,error) {
 
 	for rows.Next() {
 		err = rows.Scan(&eventid,&eventtitle,&eventcontent,&eventtime)
+		filesTemp,_ := GetFiles(eventid)
 		eventTemp := models.Event{
 			EventId:eventid,
 			EventTitle:eventtitle,
 			EventContent:eventcontent,
 			EventTime:eventtime,
+			EventFile:filesTemp,
 			PersonId:id,
 		}
 		eventid = ""
 		eventtitle = ""
 		eventcontent = ""
 		eventtime = ""
+		filesTemp = nil
 
 		events = append(events,eventTemp)
 	}

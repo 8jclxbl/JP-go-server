@@ -4,7 +4,6 @@ import (
 	"JP-go-server/db"
 	"JP-go-server/models"
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"os"
@@ -49,7 +48,6 @@ func (this *FileController) Update() {
 	}
 
 	file := this.jsReq.Params.File
-	fmt.Println(file)
 	err = db.UpdateFile(file)
 	if err != nil {
 		this.msg.Desc ="设置失败 " + err.Error()

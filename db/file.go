@@ -64,37 +64,30 @@ func UpdateFile (file models.File) error {
 	return nil
 }
 
-func GetFile(id string,isFileId bool) (*models.File,error){
-	query1 := "SELECT eventid,fileurl,filetype FROM file WHERE id = ?"
-	query2 := "SELECT eventid,fileurl,filetype FROM file WHERE eventid = ?"
-	query := query2
-	if isFileId {
-		query = query1
-	}
+func GetFiles(eventid string) ([]models.File,error){
 
-	stmt,err := dbConn.Prepare(query)
+	rows,err := dbConn.Query("SELECT fileurl,filetype FROM file WHERE eventid = ? ORDER BY id DESC", eventid)
 	if err != nil {
 		return nil,err
 	}
 
-	var eventid,fileurl,filetype string
-	err = stmt.QueryRow(id).Scan(&eventid,&fileurl,&filetype)
+	var fileurl,filetype string
+	var files []models.File
 
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
+	for rows.Next() {
+		err = rows.Scan(&fileurl,&filetype,)
+		fileTemp := models.File{
+			EventID:eventid,
+			FileUrl:fileurl,
+			FileType:filetype,
+		}
+		fileurl = ""
+		filetype = ""
 
-	if err == sql.ErrNoRows {
-		return  nil, nil
+		files = append(files,fileTemp)
 	}
-	fileTemp := &models.File{
-		EventID:eventid,
-		FileUrl:fileurl,
-		FileType:filetype,
-	}
-
-	defer stmt.Close()
-	return fileTemp,err
+	defer rows.Close()
+	return files,err
 }
 
 func GetFileByUrl(url string) (*models.File,error){
