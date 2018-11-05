@@ -4,7 +4,7 @@ import (
 	"JP-go-server/models"
 	"JP-go-server/util"
 	"database/sql"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 )
 
 func CreatEvent(event models.Event) (string,error){
@@ -46,7 +46,7 @@ func CreatEvent(event models.Event) (string,error){
 func UpdateEvent(event models.Event) error{
 	eventTemp, err := GetEventById(event.EventId)
 	if eventTemp == nil {
-		return errors.New("时间不存在")
+		return errors.New("事件不存在")
 	}
 
 	if err != nil {

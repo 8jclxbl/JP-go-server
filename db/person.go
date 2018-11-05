@@ -5,7 +5,6 @@ import (
 	"JP-go-server/util"
 	"database/sql"
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -83,7 +82,7 @@ func GetPersonByName(userName string) (*models.Person, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(err.Error())
+	//fmt.Println(err.Error())
 	var personid,personname,persondescribe,personsex,personbirthday,personhomeplace,personaddress,personimgurl,parentid,userid string
 	err = stmt.QueryRow(userName).Scan(
 		&personid,&personname,&persondescribe,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
