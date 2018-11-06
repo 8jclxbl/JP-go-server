@@ -188,7 +188,7 @@ func (this *EventController) List() {
 		return
 	}
 	if events == nil {
-		this.msg.Desc ="该人物尚无事件"
+		this.msg.Desc ="该人物尚无事件或人物不存在"
 		resp := GenEventResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()

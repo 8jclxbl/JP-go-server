@@ -60,13 +60,14 @@ func UpdateEvent(event models.Event) error{
 	if event.EventContent == "" {
 		event.EventContent = eventTemp.EventContent
 	}
-	if event.EventTime == "" {
-		event.EventTime = eventTemp.EventTime
-	}
+
 	if event.PersonId == "" {
 		event.PersonId = eventTemp.PersonId
 	}
 */
+	if event.EventTime == "" {
+		event.EventTime = eventTemp.EventTime
+	}
 
 	stmt, err := dbConn.Prepare("UPDATE event SET eventtitle=?,eventcontent=?," +
 		"eventtime=?,personid=? WHERE eventid=?")
@@ -119,15 +120,13 @@ func GetByPersonId(id string) ([]models.Event,error) {
 }
 
 func GetEventById(id string) (*models.Event,error) {
-	stmt,err := dbConn.Prepare("SELECT eventtitle,eventcontent," +
-		"eventtime,personid FROM event WHERE eventid = ?")
+	stmt,err := dbConn.Prepare("SELECT eventtitle,eventcontent,eventtime,personid FROM event WHERE eventid = ?")
 	if err != nil {
 		return nil,err
 	}
 
 	var eventtitle,eventcontent,eventtime,personid string
-	err = stmt.QueryRow(id).Scan(&eventtitle,&eventcontent,
-		&eventtime,&personid)
+	err = stmt.QueryRow(id).Scan(&eventtitle,&eventcontent,&eventtime,&personid)
 
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
@@ -136,7 +135,6 @@ func GetEventById(id string) (*models.Event,error) {
 	if err == sql.ErrNoRows {
 		return  nil, nil
 	}
-
 	eventTemp := &models.Event{
 		EventId:id,
 		EventTitle:eventtitle,
@@ -144,7 +142,6 @@ func GetEventById(id string) (*models.Event,error) {
 		EventTime:eventtime,
 		PersonId:personid,
 	}
-
 	defer stmt.Close()
 	return eventTemp, nil
 }

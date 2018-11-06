@@ -41,7 +41,7 @@ func (this *UserController) Post() {
 	action := this.jsReq.Params.Action
 
 	if action != actionFromUrl {
-		this.msg.Desc = "actions from url and json are not the same"
+		this.msg.Desc = "json和url中的方法不同名"
 		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -58,7 +58,7 @@ func (this *UserController) Post() {
 	case "update":
 		this.Update()
 	default:
-		this.msg.Desc = "Unknown method"
+		this.msg.Desc = "未知方法"
 		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
@@ -135,7 +135,7 @@ func (this *UserController) Login() {
 
 	//处理获取用户信息时的数据库读取错误
 	if err != nil {
-		this.msg.Desc = "db err: " + err.Error()
+		this.msg.Desc = "数据库错误: " + err.Error()
 		resp := GenUserResp(false,this.msg)
 		this.Data["json"] = resp
 		this.ServeJSON()
