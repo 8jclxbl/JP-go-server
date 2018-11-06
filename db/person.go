@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+const defaultPic = "undefined.jpg"
 
 func CreatPerson(person models.Person) (string, error){
 
@@ -54,6 +55,10 @@ func GetPersonById(personId string) (*models.Person, error) {
 	if err == sql.ErrNoRows {
 		//fmt.Println("sql err")
 		return  nil, nil
+	}
+
+	if personimgurl == "" {
+		personimgurl = defaultPic
 	}
 
 	personTemp := &models.Person{
@@ -150,13 +155,14 @@ func UpdatePerson(person models.Person) error{
 	if person.PersonImgurl == "" {
 		person.PersonImgurl = personTemp.PersonImgurl
 	}
-	if person.ParentId == "" {
-		person.ParentId = personTemp.ParentId
-	}
+
 	if person.UserId == "" {
 		person.UserId = personTemp.UserId
 	}
 */
+	if person.ParentId == "" {
+		person.ParentId = personTemp.ParentId
+	}
 
 	stmt, err := dbConn.Prepare("UPDATE person SET personname=?,persondescribe=?,personsex=?," +
 		"personbirthday=?,personhomeplace=?,personaddress=?,personimgurl=?,parentid=?,userid=? WHERE personid=?")
@@ -231,6 +237,10 @@ func ListPerson(personSelect models.PersonSelect) ([]models.Person, error) {
 	for rows.Next() {
 		err = rows.Scan(
 			&personid,&personname,&persondescribe,&personsex,&personbirthday,&personhomeplace,&personaddress,&personimgurl,&parentid,&userid)
+
+		if personimgurl == "" {
+			personimgurl = defaultPic
+		}
 
 		personTemp := models.Person{
 			PersonId:personid,

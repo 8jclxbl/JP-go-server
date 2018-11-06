@@ -135,6 +135,10 @@ func GetUser(userName string) (*models.User, error) {
 		return  nil, nil
 	}
 
+	if imgurl == "" {
+		imgurl = defaultPic
+	}
+
 	userTemp := &models.User{
 		UserName:name,
 		UserPass:pass,

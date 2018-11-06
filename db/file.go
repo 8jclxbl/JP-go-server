@@ -76,6 +76,10 @@ func GetFiles(eventid string) ([]models.File,error){
 
 	for rows.Next() {
 		err = rows.Scan(&fileurl,&filetype,)
+		if fileurl == "" {
+			fileurl = defaultPic
+		}
+
 		fileTemp := models.File{
 			EventID:eventid,
 			FileUrl:fileurl,
